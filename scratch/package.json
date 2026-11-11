@@ -1,0 +1,13 @@
+{
+  "name": "viaje360-pdf-generator",
+  "version": "1.0.0",
+  "description": "Generador de PDF para el manual técnico de Viaje 360",
+  "main": "generate_pdf.js",
+  "scripts": {
+    "generate": "node generate_pdf.js"
+  },
+  "dependencies": {
+    "marked": "^9.1.6",
+    "puppeteer": "^22.15.0"
+  }
+}
