@@ -10,14 +10,17 @@ const login = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ ok: false, msg: 'Email y contraseña requeridos' });
 
+    // ✅ Forzamos a Sequelize a traer el campo 'password_hash'
     const usuario = await Usuario.findOne({
       where: { email, activo: 1 },
+      attributes: { include: ['password_hash'] },
       include: [{ association: 'rol' }],
     });
 
     if (!usuario)
       return res.status(401).json({ ok: false, msg: 'Credenciales inválidas' });
 
+    // Comprobar la contraseña recibida contra el hash de la BD
     const valido = await bcrypt.compare(password, usuario.password_hash);
     if (!valido)
       return res.status(401).json({ ok: false, msg: 'Credenciales inválidas' });
@@ -26,12 +29,12 @@ const login = async (req, res) => {
     await usuario.update({ ultimo_login: new Date() });
 
     const payload = {
-      id:      usuario.id,
-      email:   usuario.email,
-      nombre:  usuario.nombre,
-      apellido:usuario.apellido,
-      rol:     usuario.rol?.nombre,
-      permisos:usuario.rol?.permisos,
+      id:       usuario.id,
+      email:    usuario.email,
+      nombre:   usuario.nombre,
+      apellido: usuario.apellido,
+      rol:      usuario.rol?.nombre,
+      permisos: usuario.rol?.permisos,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
